@@ -1,0 +1,235 @@
+syntax = "proto3";
+
+package orchestrator;
+
+// Main orchestrator service
+service OrchestratorService {
+  // Submit a new task for orchestration
+  rpc SubmitTask(TaskRequest) returns (TaskResponse);
+
+  // Get task status
+  rpc GetTaskStatus(TaskStatusRequest) returns (TaskStatusResponse);
+
+  // Stream task updates
+  rpc StreamTaskUpdates(TaskStatusRequest) returns (stream TaskUpdate);
+
+  // Cancel a task
+  rpc CancelTask(TaskCancelRequest) returns (TaskCancelResponse);
+
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Agent service interface
+service AgentService {
+  // Execute a task
+  rpc ExecuteTask(AgentTaskRequest) returns (AgentTaskResponse);
+
+  // Stream execution updates
+  rpc StreamExecution(AgentTaskRequest) returns (stream AgentTaskUpdate);
+
+  // Register agent capabilities
+  rpc RegisterAgent(AgentRegistration) returns (AgentRegistrationResponse);
+
+  // Agent health check
+  rpc AgentHealthCheck(AgentHealthRequest) returns (AgentHealthResponse);
+}
+
+// Task request message
+message TaskRequest {
+  string task_id = 1;
+  string task_type = 2;  // e.g., "report_generation", "real_time_monitoring"
+  map<string, string> metadata = 3;
+  repeated Input inputs = 4;
+  ExecutionMode execution_mode = 5;
+  int32 priority = 6;
+  int64 timeout_ms = 7;
+}
+
+// Input types (multi-modal)
+message Input {
+  string input_id = 1;
+  InputType type = 2;
+  bytes data = 3;
+  string url = 4;
+  map<string, string> metadata = 5;
+}
+
+enum InputType {
+  TEXT = 0;
+  IMAGE = 1;
+  VIDEO = 2;
+  AUDIO = 3;
+  JSON = 4;
+  BINARY = 5;
+}
+
+enum ExecutionMode {
+  PARALLEL = 0;
+  SEQUENTIAL = 1;
+  HYBRID = 2;
+}
+
+// Task response
+message TaskResponse {
+  string task_id = 1;
+  TaskStatus status = 2;
+  string message = 3;
+  int64 estimated_completion_ms = 4;
+}
+
+enum TaskStatus {
+  PENDING = 0;
+  QUEUED = 1;
+  RUNNING = 2;
+  COMPLETED = 3;
+  FAILED = 4;
+  CANCELLED = 5;
+  RETRYING = 6;
+}
+
+// Task status request
+message TaskStatusRequest {
+  string task_id = 1;
+}
+
+// Task status response
+message TaskStatusResponse {
+  string task_id = 1;
+  TaskStatus status = 2;
+  repeated AgentExecution agent_executions = 3;
+  Output output = 4;
+  Error error = 5;
+  TaskMetrics metrics = 6;
+}
+
+// Agent execution info
+message AgentExecution {
+  string agent_id = 1;
+  string agent_type = 2;
+  TaskStatus status = 3;
+  int64 start_time_ms = 4;
+  int64 end_time_ms = 5;
+  string error_message = 6;
+}
+
+// Task update stream
+message TaskUpdate {
+  string task_id = 1;
+  TaskStatus status = 2;
+  string agent_id = 3;
+  string message = 4;
+  int32 progress_percent = 5;
+  int64 timestamp_ms = 6;
+}
+
+// Task cancellation
+message TaskCancelRequest {
+  string task_id = 1;
+  string reason = 2;
+}
+
+message TaskCancelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Output format
+message Output {
+  OutputType type = 1;
+  bytes data = 2;
+  string json_data = 3;
+  map<string, string> metadata = 4;
+}
+
+enum OutputType {
+  JSON_REPORT = 0;
+  ALERT = 1;
+  BINARY_DATA = 2;
+  TEXT_RESULT = 3;
+}
+
+// Error details
+message Error {
+  string error_code = 1;
+  string message = 2;
+  string stack_trace = 3;
+  bool retryable = 4;
+}
+
+// Task metrics
+message TaskMetrics {
+  int64 total_duration_ms = 1;
+  int64 queue_time_ms = 2;
+  int64 execution_time_ms = 3;
+  int32 retry_count = 4;
+  int32 agents_used = 5;
+}
+
+// Agent task request
+message AgentTaskRequest {
+  string task_id = 1;
+  string agent_task_id = 2;
+  string agent_type = 3;
+  repeated Input inputs = 4;
+  map<string, string> parameters = 5;
+  int64 timeout_ms = 6;
+}
+
+// Agent task response
+message AgentTaskResponse {
+  string agent_task_id = 1;
+  TaskStatus status = 2;
+  Output output = 3;
+  Error error = 4;
+  int64 execution_time_ms = 5;
+}
+
+// Agent task update
+message AgentTaskUpdate {
+  string agent_task_id = 1;
+  TaskStatus status = 2;
+  string message = 3;
+  int32 progress_percent = 4;
+}
+
+// Agent registration
+message AgentRegistration {
+  string agent_id = 1;
+  string agent_type = 2;
+  repeated string capabilities = 3;
+  string endpoint = 4;
+  int32 max_concurrent_tasks = 5;
+  map<string, string> metadata = 6;
+}
+
+message AgentRegistrationResponse {
+  bool success = 1;
+  string message = 2;
+  string registration_token = 3;
+}
+
+// Health checks
+message HealthCheckRequest {
+  string service_id = 1;
+}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string version = 2;
+  int64 uptime_seconds = 3;
+  map<string, string> stats = 4;
+}
+
+message AgentHealthRequest {
+  string agent_id = 1;
+}
+
+message AgentHealthResponse {
+  bool healthy = 1;
+  int32 active_tasks = 2;
+  int32 completed_tasks = 3;
+  int32 failed_tasks = 4;
+  float cpu_usage = 5;
+  float memory_usage = 6;
+}

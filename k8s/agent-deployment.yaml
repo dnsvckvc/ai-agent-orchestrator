@@ -1,0 +1,252 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-ingest-agent
+  namespace: orchestrator
+  labels:
+    app: agent
+    agent-type: data-ingest
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: data-ingest
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: data-ingest
+    spec:
+      containers:
+      - name: agent
+        image: agent:latest
+        env:
+        - name: AGENT_TYPE
+          value: "data_ingest"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: MAX_CONCURRENT_TASKS
+          value: "20"
+        ports:
+        - containerPort: 50052
+          name: grpc
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-analysis-agent
+  namespace: orchestrator
+  labels:
+    app: agent
+    agent-type: data-analysis
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: data-analysis
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: data-analysis
+    spec:
+      containers:
+      - name: agent
+        image: agent:latest
+        env:
+        - name: AGENT_TYPE
+          value: "data_analysis"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: MAX_CONCURRENT_TASKS
+          value: "15"
+        ports:
+        - containerPort: 50052
+          name: grpc
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synthesis-agent
+  namespace: orchestrator
+  labels:
+    app: agent
+    agent-type: synthesis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: synthesis
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: synthesis
+    spec:
+      containers:
+      - name: agent
+        image: agent:latest
+        env:
+        - name: AGENT_TYPE
+          value: "synthesis"
+        - name: REDIS_HOST
+          value: "redis"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-detection-agent
+  namespace: orchestrator
+  labels:
+    app: agent
+    agent-type: video-detection
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: video-detection
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: video-detection
+    spec:
+      containers:
+      - name: agent
+        image: agent:latest
+        env:
+        - name: AGENT_TYPE
+          value: "video_detection"
+        - name: REDIS_HOST
+          value: "redis"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: "1"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerting-agent
+  namespace: orchestrator
+  labels:
+    app: agent
+    agent-type: alerting
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: alerting
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: alerting
+    spec:
+      containers:
+      - name: agent
+        image: agent:latest
+        env:
+        - name: AGENT_TYPE
+          value: "alerting"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: MAX_CONCURRENT_TASKS
+          value: "20"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-caller-agent
+  namespace: orchestrator
+  labels:
+    app: agent
+    agent-type: api-caller
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: agent
+      agent-type: api-caller
+  template:
+    metadata:
+      labels:
+        app: agent
+        agent-type: api-caller
+    spec:
+      containers:
+      - name: agent
+        image: agent:latest
+        env:
+        - name: AGENT_TYPE
+          value: "api_caller"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: MAX_CONCURRENT_TASKS
+          value: "25"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-service
+  namespace: orchestrator
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: agent
+  ports:
+  - port: 50052
+    targetPort: 50052
+    name: grpc
