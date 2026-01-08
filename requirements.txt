@@ -31,3 +31,24 @@ locust==2.20.0
 pydantic==2.5.2
 python-json-logger==2.0.7
 tenacity==8.2.3
+
+# LLM providers
+openai>=1.10.0
+anthropic>=0.18.0
+
+# RSS/Podcast processing
+feedparser==6.0.10
+httpx==0.26.0
+
+# Document processing
+PyMuPDF==1.23.8  # fitz - PDF extraction
+pdfplumber==0.10.3  # Alternative PDF extraction
+beautifulsoup4==4.12.3  # HTML parsing
+lxml==5.1.0  # XML/HTML parsing
+
+# OCR (optional - only if using local OCR)
+# pytesseract==0.3.10  # Uncomment if using Tesseract OCR
+# Pillow already included above for image processing
+
+# Scheduling (for future use)
+apscheduler==3.10.4

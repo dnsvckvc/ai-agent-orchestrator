@@ -48,10 +48,30 @@ class Orchestrator:
 
         # Task type to agent type mapping
         self.task_agent_mapping = {
+            # Original workflows (placeholder agents)
             "report_generation": ["data_ingest", "data_analysis", "synthesis"],
             "real_time_monitoring": ["video_detection", "alerting"],
             "data_analysis": ["data_analysis"],
             "api_call": ["api_caller"],
+
+            # New production workflows
+            "podcast_intelligence": [
+                "rss_feed_monitor",
+                "podcast_transcript",
+                "transcript_summary",
+                "industry_synthesis"
+            ],
+            "document_intelligence": [
+                "document_reader",
+                "transcript_summary",
+                "industry_synthesis"
+            ],
+            "content_summarization": [
+                "transcript_summary"
+            ],
+            "industry_synthesis_only": [
+                "industry_synthesis"
+            ],
         }
 
     async def start(self):

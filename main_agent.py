@@ -18,6 +18,13 @@ from agents.video_detection_agent import VideoDetectionAgent
 from agents.alerting_agent import AlertingAgent
 from agents.api_caller_agent import APICallerAgent
 
+# New production-ready agents
+from agents.rss_feed_monitor_agent import RSSFeedMonitorAgent
+from agents.podcast_transcript_agent import PodcastTranscriptAgent
+from agents.transcript_summary_agent import TranscriptSummaryAgent
+from agents.document_reader_agent import DocumentReaderAgent
+from agents.industry_synthesis_agent import IndustrySynthesisAgent
+
 # Configure logging
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
@@ -28,12 +35,20 @@ logger = logging.getLogger(__name__)
 
 # Agent type mapping
 AGENT_CLASSES = {
+    # Original placeholder agents
     "data_ingest": DataIngestAgent,
     "data_analysis": DataAnalysisAgent,
     "synthesis": SynthesisAgent,
     "video_detection": VideoDetectionAgent,
     "alerting": AlertingAgent,
-    "api_caller": APICallerAgent
+    "api_caller": APICallerAgent,
+
+    # New production-ready agents
+    "rss_feed_monitor": RSSFeedMonitorAgent,
+    "podcast_transcript": PodcastTranscriptAgent,
+    "transcript_summary": TranscriptSummaryAgent,
+    "document_reader": DocumentReaderAgent,
+    "industry_synthesis": IndustrySynthesisAgent,
 }
 
 
